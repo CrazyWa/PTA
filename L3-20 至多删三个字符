@@ -1,0 +1,24 @@
+#include <bits/stdc++.h>
+using namespace std;
+long long dp[1000100][5];
+char s[1000100];
+int main() {
+	cin>>s+1;
+	int len=strlen(s+1);
+	dp[0][0]=1;
+	for(int i=1; i<=len; i++) {
+		for(int j=0; j<=3; j++) {
+			if(j<3)dp[i][j+1]=dp[i-1][j];
+			dp[i][j]+=dp[i-1][j];
+			for(int k=i-1; i-k<=j&&k>=1; k--) {
+				if(s[i]==s[k]) {
+					dp[i][j]-=dp[k-1][j-(i-k)];
+					break;
+				}
+			}
+		}
+	}
+	cout<<dp[len][0]+dp[len][1]+dp[len][2]+dp[len][3];
+	return 0;
+
+}
