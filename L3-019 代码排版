@@ -1,0 +1,105 @@
+//大模拟 2022.1.22
+#include <bits/stdc++.h>
+using namespace std;
+int judge(string s,int i) {
+	if(s.find("if",i)==i&&(s[i+2]==' '||s[i+2]=='('))return 2;
+	if(s.find("for",i)==i&&(s[i+3]==' '||s[i+3]=='('))return 3;
+	if(s.find("while",i)==i&&(s[i+5]==' '||s[i+5]=='('))return 5;
+	if(s.find("else",i)==i&&s[i+4]==' ')return 4;
+	return 0;
+}
+void espace(string s,int &i) {
+	while(s[i]==' ')i++;
+}
+void ospace(int n) {
+	for(int i=0; i<n; i++)putchar(' ');
+}
+
+
+int main() {
+	string s;
+	getline(cin,s);
+	int l=s.find('i',0),r=s.find(')',0);
+	cout<<s.substr(l,r-l+1)<<"\n{\n";
+	int tmp,space=2,debt=0,flag;
+	for(int i=s.find('{',0)+1; i<s.size();) {
+		espace(s,i);
+		if(s[i]=='{'||s[i]=='}') {
+			if(s[i]=='{') {
+				ospace(space);
+				cout<<"{\n";
+				space+=2;
+				i++;
+				continue;
+			} else {
+				space-=2;
+				ospace(space);
+				cout<<"}\n";
+				i++;
+				if(space==0)break;
+
+				espace(s,i);
+				while(debt&&judge(s,i)!=4) {
+					space-=2;
+					ospace(space);
+					cout<<"}\n";
+					debt--;
+				}
+			}
+		} else if(tmp=judge(s,i)) {
+			ospace(space);
+			if(tmp==4) {
+				cout<<"else";
+				r=i+3;//
+			} else {
+				cout<<s.substr(i,tmp)<<" ";
+				i+=tmp;
+				espace(s,i);
+				r=i;
+				int t=0;
+				while(1) {
+					if(s[r]=='(')t++;
+					if(s[r]==')')t--;
+					if(!t)break;
+					r++;
+				}
+				cout<<s.substr(i,r-i+1);
+			}
+			l=r+1;
+			espace(s,l);
+			if(s[l]!='{') {
+				cout<<" {\n";
+				flag=1;
+				debt++;
+				i=l;
+			} else {
+				cout<<" {\n";
+				flag=0;
+				i=l+1;
+			}
+			space+=2;
+		} else {
+			r=s.find(';',i);
+			ospace(space);
+			cout<<s.substr(i,r-i+1)<<"\n";
+			i=r+1;
+
+			if(flag&&debt) {
+				space-=2;
+				ospace(space);
+				cout<<"}\n";
+				debt--;
+
+
+				espace(s,i);
+				while(debt&&judge(s,i)!=4) {
+					space-=2;
+					ospace(space);
+					cout<<"}\n";
+					debt--;
+				}
+			}
+		}
+	}
+	return 0;
+}
