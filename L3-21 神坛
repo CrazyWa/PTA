@@ -1,0 +1,32 @@
+#include <bits/stdc++.h>
+using namespace std;
+struct Point {
+	long long x,y;
+} p[5050],q[5050];
+bool cmp(Point a,Point b) {
+	return b.y*a.x<a.y*b.x;
+}
+int main() {
+	int n;
+	cin>>n;
+	for(int i=1; i<=n; i++) {
+		cin>>p[i].x>>p[i].y;
+	}
+	long long ans=1e18;
+	for(int i=1; i<=n; i++) {
+		int k=0;
+		for(int j=1; j<=n; j++) {
+			if(i!=j) {
+				q[++k].x=p[i].x-p[j].x;
+				q[k].y=p[i].y-p[j].y;
+			}
+		}
+		sort(q+1,q+1+k,cmp);
+		for(int i=2; i<=k; i++) {
+			ans=min(ans,abs(q[i-1].x*q[i].y-q[i].x*q[i-1].y));
+		}
+	}
+
+	printf("%.3f",1.0*ans/2);
+	return 0;
+}
