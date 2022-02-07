@@ -1,0 +1,74 @@
+#include <bits/stdc++.h>
+using namespace std;
+#define ls x<<1
+#define rs x<<1|1
+const int N=100100;
+const long long inf=0x3f3f3f3f3f;
+int val[N],tree[N<<2],lazy[N<<2];
+pair<int,int>seg[N];
+bool cmp(pair<int,int> a,pair<int,int> b) {
+	if(a.second==b.second)return a.first<b.first;
+	else return a.second<b.second;
+}
+void build(int l,int r,int x) {
+	lazy[x]=0;
+	if(l==r)tree[x]=val[l];
+	else {
+		int m=(l+r)>>1;
+		build(l,m,ls);
+		build(m+1,r,rs);
+		tree[x]=min(tree[ls],tree[rs]);
+	}
+}
+void pushdown(int x) {
+	if(lazy[x]==0)return;
+	lazy[ls]+=lazy[x];
+	lazy[rs]+=lazy[x];
+	tree[ls]-=lazy[x];
+	tree[rs]-=lazy[x];
+	lazy[x]=0;
+}
+void update(int l,int r,int L,int R,int x,int d) {
+	if(l>=L&&r<=R)tree[x]-=d,lazy[x]+=d;
+	else {
+		pushdown(x);
+		int m=(l+r)>>1;
+		if(m>=L)update(l,m,L,R,ls,d) ;
+		if(m<R)update(m+1,r,L,R,rs,d);
+		tree[x]=min(tree[ls],tree[rs]);
+	}
+}
+
+long long query(int l,int r,int L,int R,int x) {
+	if(l>=L&&r<=R)return tree[x];
+	if(l>R||r<L)return inf;
+	int m=(l+r)>>1;
+	long long d=inf;
+	pushdown(x);
+	if(m>=L)d=min(d,query(l,m,L,R,ls));
+	if(m<R)d=min(d,query(m+1,r,L,R,rs));
+	tree[x]=min(tree[ls],tree[rs]);
+	return d;
+}
+int main() {
+	int n,m;
+	cin>>n>>m;
+	for(int i=0; i<n-1; i++) {
+		cin>>val[i];
+	}
+	build(0,n-2,1);
+	for(int i=1; i<=m; i++) {
+		cin>>seg[i].first>>seg[i].second;
+		if(seg[i].first>seg[i].second)swap(seg[i].first,seg[i].second);
+		seg[i].second--;
+	}
+	sort(seg+1,seg+1+m,cmp);
+	long long ans=0;
+	for(int i=1; i<=m; i++) {
+		long long d=query(0,n-2,seg[i].first,seg[i].second,1);
+		ans+=d;
+		update(0,n-2,seg[i].first,seg[i].second,1,d);
+	}
+	cout<<ans;
+	return 0;
+}
