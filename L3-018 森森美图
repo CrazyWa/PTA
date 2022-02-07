@@ -1,0 +1,71 @@
+#include <bits/stdc++.h>
+using namespace std;
+const int N=110;
+const double inf=0x3f3f3f3f;
+double val[N][N],dis[N][N];
+int dir1[]={1,0,-1,0,1,1,-1,-1},dir2[]={0,1,0,-1,1,-1,1,-1};
+struct  Point {
+	int x,y;
+	double d;
+	bool operator !=(const Point& a)const {
+		return x!=a.x||y!=a.y;
+	}
+}A,B;
+queue<Point>q;
+int ud=1,n,m;
+int cross(Point a,Point b,Point p)
+{
+    return (b.x-a.x)*(p.y-a.y)-(p.x-a.x)*(b.y-a.y);
+}
+bool valid(Point v){
+	if(v.x>n||v.y>m||v.x<1||v.y<1)return false;
+	if(v.d>=dis[v.x][v.y])return false;
+	if(cross(A,B,v)*ud==0&&v!=B||cross(A,B,v)*ud>0)return false;
+	return true;
+}
+double bfs(){
+	while(!q.empty())q.pop();
+	for(int i=1;i<=n;i++)for(int j=1;j<=m;j++) dis[i][j]=inf;
+	q.push(A);
+	dis[A.x][A.y]=val[A.x][A.y];
+	while(!q.empty()){
+		Point u=q.front();
+		q.pop();
+		for(int i=0;i<4;i++){
+			Point v;
+			v.x=u.x+dir1[i];
+			v.y=u.y+dir2[i];
+			v.d=dis[u.x][u.y]+val[v.x][v.y];
+			if(valid(v)){
+				dis[v.x][v.y]=v.d;
+				q.push(v);
+			}
+		}
+		for(int i=4;i<8;i++){
+			Point v;
+			v.x=u.x+dir1[i];
+			v.y=u.y+dir2[i];
+			v.d=dis[u.x][u.y]+val[v.x][v.y]+(val[v.x][v.y]+val[u.x][u.y])*(sqrt(2)-1);
+			if(valid(v)){
+				dis[v.x][v.y]=v.d;
+				q.push(v);
+			}
+		}
+	}
+	return dis[B.x][B.y];
+}
+int main() {
+	cin>>n>>m;
+	for(int i=1; i<=n; i++) {
+		for(int j=1; j<=m; j++) {
+			cin>>val[i][j];
+		}
+	}
+	cin>>A.y>>A.x>>B.y>>B.x;
+	A.x++,A.y++,B.x++,B.y++;
+	double ans=0;
+	ans+=bfs();
+	ud=-1,ans+=bfs();
+	printf("%.2f",ans-val[A.x][A.y]-val[B.x][B.y]);
+	return 0;
+}
