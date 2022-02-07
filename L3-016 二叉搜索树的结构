@@ -1,0 +1,215 @@
+#include <bits/stdc++.h>
+using namespace std;
+struct Node {
+	int data;
+	Node*ls,*rs;
+};
+Node*insert(Node*root,int t) {
+	if(root==NULL) {
+		root=new Node;
+		root->ls=root->rs=NULL;
+		root->data=t;
+		return root;
+	} else {
+		if(t>root->data) {
+			root->rs=insert(root->rs,t);
+		} else if(t<root->data) {
+			root->ls=insert(root->ls,t);
+		}
+	}
+	return root;
+}
+bool flag;
+bool find_s(Node*root,int a,int b) {
+	if(root) {
+		/*if(a==root->ls->data&&b==root->rs->data)return true;
+		if(a==root->ls->data&&b!=root->rs->data||a==root->rs->data||root->data==a)return false;*/
+		if(root->ls!=NULL&&root->rs!=NULL) {
+			if(root->ls->data==a&&root->rs->data==b)return true;
+		}
+		return max(find_s(root->ls,a,b),find_s(root->rs,a,b));
+	}
+	return false;
+}
+int find_h(Node*root,int a,int dep) {
+	if(root) {
+		if(root->data==a)return dep;
+		if(a>root->data) return find_h(root->rs,a,dep+1);
+		if(a<root->data) return find_h(root->ls,a,dep+1);
+	}
+	if(a==0)cout<<root->data<<endl;
+	return 0;
+}
+bool find_f(Node*root,int a,int b) {
+	if(root) {
+		if(root->data==a&&(root->ls&&root->ls->data==b||root->rs&&root->rs->data==b))return true;
+		if(a>root->data)return find_f(root->rs,a,b);
+		if(a<root->data) return find_f(root->ls,a,b);
+	}
+	return false;
+}
+bool find_l(Node*root,int a,int b) {
+	if(root) {
+		if(root->data==b&&root->ls&&root->ls->data==a)return true;
+		if(b>root->data)return find_l(root->rs,a,b);
+		if(b<root->data)return find_l(root->ls,a,b);
+	}
+	return false;
+}
+bool find_r(Node*root,int a,int b) {
+	if(root) {
+		if(root->data==b&&root->rs&&root->rs->data==a)return true;
+		if(b>root->data) return find_r(root->rs,a,b);
+		if(b<root->data)return find_r(root->ls,a,b);
+	}
+	return false;
+}
+map<int,int>mp;
+int main() {
+	int n;
+	cin>>n;
+	Node*root=NULL;
+	for(int i=1; i<=n; i++) {
+		int t;
+		cin>>t;
+		mp[t]=1;
+		root=insert(root,t);
+	}
+	int m;
+	cin>>m;
+	getchar();
+	while(m--) {
+		string s;
+		int a,b;
+		getline(cin,s);
+		flag=false;
+		if(s.find("root")!=s.npos) {
+			sscanf(s.c_str(),"%d is the root",&a);
+			if(mp[a]&&root->data==a)flag=1;
+		}
+		if(s.find("sibling")!=s.npos) {
+			sscanf(s.c_str(),"%d and %d are siblings",&a,&b);
+			if(a>b)swap(a,b);
+			if(mp[a]&&mp[b]&&find_s(root,a,b))flag=1;
+		}
+		if(s.find("level")!=s.npos) {
+			sscanf(s.c_str(),"%d and %d are on the same level",&a,&b);
+			if(mp[a]&&mp[b]&&find_h(root,a,1)==find_h(root,b,1))flag=1;
+		}
+		if(s.find("parent")!=s.npos) {
+			sscanf(s.c_str(),"%d is the parent of %d",&a,&b);
+			if(mp[a]&&mp[b]&&find_f(root,a,b))flag=1;
+		}
+		if(s.find("left")!=s.npos) {
+			sscanf(s.c_str(),"%d is the left child of %d",&a,&b);
+			if(mp[a]&&mp[b]&&find_l(root,a,b))flag=1;
+		}
+		if(s.find("right")!=s.npos) {
+			sscanf(s.c_str(),"%d is the right child of %d",&a,&b);
+			if(mp[a]&&mp[b]&&find_r(root,a,b))flag=1;
+		}
+		if(flag)cout<<"Yes"<<endl;
+		else cout<<"No"<<endl;
+	}
+	return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*#include <bits/stdc++.h>
+using namespace std;
+#define ls 2*x
+#define rs 2*x+1
+const int N=10000;
+int tree[1024],mp[20010];
+void insert(int x,int data){
+	if(tree[x]==0){
+		tree[x]=data;
+		mp[data]=x;
+	}else{
+		if(data>tree[x])insert(rs,data);
+		else insert(ls,data);
+	}
+}
+int main(){
+	int n,m;
+	scanf("%d",&n);
+	for(int i=1;i<=n;i++){
+		int t;
+		scanf("%d",&t);
+		insert(1,t);
+		//cout<<mp[t]<<endl;
+	}
+	scanf("%d",&m);
+	getchar();
+	while(m--) {
+		string s;
+		getline(cin,s);
+		int l=s.size();
+		bool flag=false;
+		int a,b;
+		if(s.substr(l-4,4)=="root") {
+			sscanf(s.c_str(),"%d is the root",&a);
+			if(mp[a]==1) {
+				flag=1;
+			}
+		} else if(s.substr(l-8,8)=="siblings") {
+			sscanf(s.c_str(),"%d and %d are siblings",&a,&b);
+			if(mp[a]/2==mp[b]/2)flag=1;
+		} else if(s.substr(l-5,5)=="level") {
+			sscanf(s.c_str(),"%d and %d are on the same level",&a,&b);
+			a=mp[a],b=mp[b];
+			while(a&&b) {
+				a/=2;
+				b/=2;
+			}
+			if(a==b)flag=1;
+		} else {
+			char smp1[8];
+			sscanf(s.c_str(),"%d is the %[^ ]",&a,smp1);
+			if(strcmp(smp1,"parent")==0) {
+				sscanf(s.c_str(),"%d is the parent of %d",&a,&b);
+				if(mp[a]==mp[b]/2)flag=1;
+			} else {
+				sscanf(s.c_str(),"%d is the %s child of %d",&a,smp1,&b);
+				if(strcmp(smp1,"left")==0) {
+					if(mp[a]==mp[b]*2)flag=1;
+				} else {
+					if(mp[a]==mp[b]*2+1)flag=1;
+				}
+			}
+
+		}
+
+		if(flag)printf("Yes");
+		else printf("No");
+		if(m>0)printf("\n");
+	}
+	return 0;
+}*/
