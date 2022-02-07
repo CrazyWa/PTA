@@ -1,0 +1,34 @@
+#include <bits/stdc++.h>
+using namespace std;
+string mp[50];
+int ans[50],n,k,flag,vis[50];
+void dfs(int u) {
+	if(flag==true)return;
+	if(u==ans[0]&&k==n) {
+		flag=true;
+		return ;
+	}
+	int p=0;
+	for(p=0;p<n;p++)if(vis[p]==0&&(mp[p][0]=='W'||mp[0][p]=='L'))break;
+	if(p>=n)return;
+	ans[k++]=u;
+	vis[u]=1;
+	for(int i=0; i<n; i++) {
+		if((mp[i][u]=='L'||mp[u][i]=='W')&&(!vis[i]||ans[0]==i&&k==n))dfs(i);
+	}
+	k--;
+	vis[u]=0;
+}
+int main() {
+	memset(ans,-1,sizeof(ans));
+	cin>>n;
+	for(int i=0; i<n; i++)cin>>mp[i];
+	dfs(0);
+	if(flag) {
+		for(int i=0; i<n; i++) {
+			cout<<ans[i]+1;
+			if(i<n-1)cout<<' '; 
+		}
+	} else cout<<"No Solution";
+	return 0;
+}
